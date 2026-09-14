@@ -14,15 +14,15 @@ export class Agendamento {
   id!: string;
 
   @Column({ type: "timestamp" })
-  startsAt!: string;
+  startsAt!: Date;
 
   @Column({ type: "timestamp" })
-  endsAt!: string;
+  endsAt!: Date;
 
-  @Column()
+  @Column({ type: "varchar" })
   quadraId!: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   clienteId!: string;
 
   @ManyToOne(() => Cliente, (cliente) => cliente.agendamentos, {

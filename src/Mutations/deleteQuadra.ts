@@ -1,24 +1,18 @@
-import {
-  getQuadrasData,
-  updateQuadrasData,
-} from "../Repositories/quadraRepository.js";
+import { deleteQuadraData } from "../Repositories/quadraRepository.js";
 
-export function deleteQuadra(
+type deleteQuadraArgs = {
+  id: string;
+};
+
+export async function deleteQuadra(
   _parent: any,
-  args: any,
-  _context: any,
-  _info: any,
-): boolean {
+  args: deleteQuadraArgs,
+): Promise<boolean> {
   const { id } = args;
-  const listaQuadras = getQuadrasData();
-
-  const ifExists = listaQuadras.some((quadra) => quadra.id === id);
-
-  if (!ifExists) {
-    throw new Error("Quadra não encontrada");
+  if (!id || id.trim() === "") {
+    throw new Error("ID inválido inserido");
   }
+  await deleteQuadraData(id);
 
-  const listaAtualizada = listaQuadras.filter((quadra) => quadra.id !== id);
-  updateQuadrasData(listaAtualizada);
   return true;
 }

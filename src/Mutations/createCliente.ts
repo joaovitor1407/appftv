@@ -1,22 +1,25 @@
-import getClientesData, {
-  updateClientesData,
-} from "../Repositories/clienteRepository.js";
-import { Cliente } from "../types/typeDefs.js";
+import { Cliente } from "../Entities/Cliente.js";
+import { saveClienteData } from "../Repositories/clienteRepository.js";
 
-export async function createCliente(
-  _parent: any,
-  _context: any,
-  args: any,
-  _info: any,
-): Promise<Cliente> {
-  const { nome } = args.data;
-  const listaClientes = getClientesData();
-  const newClient = {
-    nome: nome,
-    id: crypto.randomUUID(),
+interface createClienteArgs {
+  data: {
+    nome: string;
+    email: string;
   };
+}
+export async function createCliente(
+  parent: any,
+  args: createClienteArgs,
+): Promise<Cliente> {
+  const { nome, email } = args.data;
 
-  listaClientes.push(newClient);
-  updateClientesData(listaClientes);
-  return newClient;
+  if (!nome || nome.trim() === "") {
+    throw new Error("Nome inválido ou não definido");
+  }
+
+  const novoCliente = await saveClienteData({
+    nome,
+    email,
+  });
+  return novoCliente;
 }

@@ -1,48 +1,81 @@
 import { Agendamento } from "../Entities/Agendamento.js";
 import { getAgendamentosList } from "../Queries/getAgendamentos.js";
-import { updateAgendamentosData } from "../Repositories/agendamentoRepository.js";
+import { saveAgendamentoData } from "../Repositories/agendamentoRepository.js";
+import { findClienteByEmail } from "../Repositories/clienteRepository.js";
+import { findQuadraByNome } from "../Repositories/quadraRepository.js";
+
+type createAgendamentoArgs = {
+  data: {
+    startsAt: string;
+    endsAt: string;
+    clienteId: string;
+    quadraId: string;
+    email: string;
+    nome: string;
+  };
+};
 
 export async function createAgendamento(
   _parent: any,
-  args: any,
-  context: any,
-  _info: any,
+  args: createAgendamentoArgs,
 ): Promise<Agendamento> {
-  const { startsAt, endsAt, clienteId, quadraId } = args.data;
+  const { startsAt, endsAt, email, nome } = args.data;
 
-  const novoInicio = new Date(startsAt);
-  const novoFim = new Date(endsAt);
+  const cliente = await findClienteByEmail(email);
+  if (!cliente) throw new Error("E-mail não encontrado");
 
-  if (endsAt < startsAt) {
-    throw new Error("Horário Inválido");
+  const quadra = await findQuadraByNome(nome);
+  if (!quadra) throw new Error("Não existe quadra com este nome");
+
+  const quadraId = quadra.id;
+  const clienteId = cliente.id;
+  const hoje = new Date().toISOString().split("T")[0];
+
+  const novoInicio = new Date(`${hoje}T${startsAt}:00`);
+  const novoFim = new Date(`${hoje}T${endsAt}:00`);
+
+  if (novoFim <= novoInicio) {
+    throw new Error("Horário inválido inserido");
   }
-  const listaAgendamento = getAgendamentosList();
-
-  const firstConflict = listaAgendamento.some((agendamento) => {
-    if (agendamento.quadraId !== quadraId) {
-      return false;
-    }
+  const listaAgendamento = await getAgendamentosList();
+  const conflito = listaAgendamento.some((agendamento) => {
     const inicioAgendado = new Date(agendamento.startsAt);
     const fimAgendado = new Date(agendamento.endsAt);
 
-    const secondConflict =
-      inicioAgendado >= novoFim || novoInicio <= fimAgendado;
-    return secondConflict;
+    const sobreposicao = novoInicio <= fimAgendado && novoFim >= inicioAgendado;
+    return sobreposicao;
   });
 
-  if (firstConflict) {
-    throw new Error("Horário já em uso nesta quadra");
+  if (conflito) {
+    throw new Error("Horário já selecionado, escolha outro horário");
   }
 
-  const novoAgendamento = {
-    id: crypto.randomUUID(),
-    startsAt: startsAt,
-    endsAt: endsAt,
-    clienteId: clienteId,
-    quadraId: quadraId,
-  };
-  listaAgendamento.push(novoAgendamento);
-  updateAgendamentosData(listaAgendamento);
+  const agendamentoSalvo = await saveAgendamentoData({
+    startsAt: novoInicio,
+    endsAt: novoFim,
+    clienteId,
+    quadraId,
+  });
+  const horaInicio = agendamentoSalvo.startsAt
+    .getHours()
+    .toString()
+    .padStart(2, "0");
+  const minInicio = agendamentoSalvo.startsAt
+    .getMinutes()
+    .toString()
+    .padStart(2, "0");
+  const horaFim = agendamentoSalvo.endsAt
+    .getHours()
+    .toString()
+    .padStart(2, "0");
+  const minFim = agendamentoSalvo.endsAt
+    .getMinutes()
+    .toString()
+    .padStart(2, "0");
 
-  return novoAgendamento;
+  return {
+    ...agendamentoSalvo,
+    startsAt: `${horaInicio}:${minInicio}`,
+    endsAt: `${horaFim}:${minFim}`,
+  } as unknown as Agendamento;
 }

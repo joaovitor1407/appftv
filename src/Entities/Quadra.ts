@@ -5,9 +5,9 @@ import { Agendamento } from "./Agendamento.js";
 export class Quadra {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
-  @Column()
+  @Column({ type: "varchar" })
   nome!: string;
-  @Column()
+  @Column({ type: "varchar" })
   tipo!: string;
 
   @OneToMany(() => Agendamento, (agendamento) => agendamento.quadra)

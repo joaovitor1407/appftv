@@ -1,34 +1,30 @@
-import { join } from "node:path";
-import { readFileSync, writeFileSync } from "node:fs";
+import db from "../DataBase/data-source.js";
 import { Cliente } from "../Entities/Cliente.js";
 
-export default function getClientesData(): Cliente[] {
-  try {
-    const filePath = join(
-      process.cwd(),
-      "src",
-      "JSONData",
-      "clientesData.json",
-    );
+const clienteRepo = db.getRepository(Cliente);
 
-    const data = readFileSync(filePath, "utf-8");
-    const clientes = JSON.parse(data);
-    return clientes;
-  } catch (error) {
-    throw new Error("Erro:" + error);
-  }
+export async function getClientesData(): Promise<Cliente[]> {
+  return await clienteRepo.find();
 }
 
-export function updateClientesData(newList: Cliente[]): void {
-  try {
-    const pathFile = join(
-      process.cwd(),
-      "src",
-      "JSONData",
-      "clientesData.json",
-    );
-    writeFileSync(pathFile, JSON.stringify(newList, null, 2), "utf-8");
-  } catch (error) {
-    throw new Error("Erro:" + error);
-  }
+export async function getClientesById(id: string): Promise<Cliente | null> {
+  return await clienteRepo.findOneBy({ id });
+}
+
+export async function saveClienteData(
+  dados: Partial<Cliente>,
+): Promise<Cliente> {
+  const novoCliente = clienteRepo.create(dados);
+  return await clienteRepo.save(novoCliente);
+}
+
+export async function deleteClienteData(id: string): Promise<boolean> {
+  const deletarID = clienteRepo.delete(id);
+  return ((await deletarID).affected ?? 0) > 0; // affected = 1 (Sucesso ao apagar)
+  // // affected = 0 (Sem sucesso) affected ?? 0 Anula a possibildade de null ou undefinde
+}
+export async function findClienteByEmail(
+  email: string,
+): Promise<Cliente | null> {
+  return await clienteRepo.findOneBy({ email });
 }

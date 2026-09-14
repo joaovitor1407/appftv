@@ -1,22 +1,20 @@
-import getClientesData, {
-  updateClientesData,
-} from "../Repositories/clienteRepository.js";
+import { deleteClienteData } from "../Repositories/clienteRepository.js";
 
-export default function deleteCliente(
+type deleteClienteArgs = {
+  id: string;
+};
+
+export async function deleteCliente(
   _parent: any,
-  args: any,
-  _context: any,
-  info: any,
-): boolean {
+  args: deleteClienteArgs,
+): Promise<boolean> {
   const { id } = args;
-  const listaClientes = getClientesData();
 
-  const existe = listaClientes.find((cliente) => cliente.id === id);
-
-  if (!existe) {
-    throw new Error();
+  if (!id || id.trim() === "") {
+    throw new Error("ID inválido inserido");
   }
-  const listaAtualizada = listaClientes.filter((cliente) => cliente.id !== id);
-  updateClientesData(listaAtualizada);
+
+  await deleteClienteData(id);
+
   return true;
 }

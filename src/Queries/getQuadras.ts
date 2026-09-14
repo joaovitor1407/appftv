@@ -1,7 +1,7 @@
 import { getQuadrasData } from "../Repositories/quadraRepository.js";
-import { Quadra } from "../types/typeDefs.js";
+import { Quadra } from "./../Entities/Quadra.js";
 
-export function getQuadrasList(): Quadra[] {
-  const listaQuadras = getQuadrasData();
+export async function getQuadrasList(): Promise<Quadra[]> {
+  const listaQuadras = await getQuadrasData();
   return listaQuadras;
 }

@@ -1,30 +1,25 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-// import { Quadra } from "../types/interfaces.js";
+import db from "../DataBase/data-source.js";
+import { Quadra } from "../Entities/Quadra.js";
 
-type Quadra = {
-  id: string;
-  nome: string;
-  tipo: string;
-};
-export function getQuadrasData(): Quadra[] {
-  try {
-    const pathFile = join(process.cwd(), "src", "JSONData", "quadrasData.json");
-
-    const data = readFileSync(pathFile, "utf-8");
-    const quadras: Quadra[] = JSON.parse(data);
-    return quadras;
-  } catch (error) {
-    throw new Error("Erro:" + error);
-  }
+const quadraRepo = db.getRepository(Quadra);
+export async function getQuadrasData(): Promise<Quadra[]> {
+  return await quadraRepo.find();
 }
 
-export function updateQuadrasData(newList: Quadra[]): void {
-  try {
-    const pathFile = join(process.cwd(), "src", "JSONData", "quadrasData.json");
+export async function findQuadraById(id: string): Promise<Quadra | null> {
+  return await quadraRepo.findOneBy({ id });
+}
 
-    writeFileSync(pathFile, JSON.stringify(newList), "utf-8");
-  } catch (error) {
-    throw new Error("Erro:" + error);
-  }
+export async function deleteQuadraData(id: string): Promise<boolean> {
+  const deletarID = quadraRepo.delete({ id });
+  return ((await deletarID).affected ?? 0) > 0;
+}
+
+export async function saveQuadraData(dados: Partial<Quadra>): Promise<Quadra> {
+  const novaQuadra = quadraRepo.create(dados);
+  return await quadraRepo.save(novaQuadra);
+}
+
+export async function findQuadraByNome(nome: string): Promise<Quadra | null> {
+  return await quadraRepo.findOneBy({ nome });
 }

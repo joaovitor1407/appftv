@@ -1,24 +1,19 @@
-import { getAgendamentosList } from "../Queries/getAgendamentos.js";
-import { updateAgendamentosData } from "../Repositories/agendamentoRepository.js";
+import { deleteAgendamentoData } from "../Repositories/agendamentoRepository.js";
 
-export default function deleteAgendamento(
+type deleteAgendamentoArgs = {
+  id: string;
+};
+
+export async function deleteAgendamento(
   _parent: any,
-  args: any,
-  _context: any,
-  _info: any,
-): boolean {
+  args: deleteAgendamentoArgs,
+): Promise<boolean> {
   const { id } = args;
-  const listaAgendamento = getAgendamentosList();
 
-  const Exists = listaAgendamento.find((agendamento) => agendamento.id === id);
-
-  if (!Exists) {
-    throw new Error("Agendamento não encontrado");
+  if (!id || id.trim() === "") {
+    throw new Error("ID inválido inserido");
   }
 
-  const listaAtualizada = listaAgendamento.filter(
-    (agendamento) => agendamento.id !== id,
-  );
-  updateAgendamentosData(listaAtualizada);
+  await deleteAgendamentoData(id);
   return true;
 }
