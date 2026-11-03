@@ -1,8 +1,8 @@
-# 🎾 AppFtv - Sistema de Agendamento de Quadras de Futevôlei
+# AppFtv - Sistema de Agendamento de Quadras de Futevôlei
 
 API Backend desenvolvida para o gerenciamento e agendamento de quadras de futevôlei, construída com foco em boas práticas de programação, tipagem estrita e validação de regras de negócio.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 Este projeto foi construído utilizando a seguinte stack:
 
@@ -13,7 +13,7 @@ Este projeto foi construído utilizando a seguinte stack:
 - **Docker & Docker Compose** para o ambiente conteinerizado
 - **PNPM** como gerenciador de pacotes
 
-## ⚙️ Funcionalidades
+## Funcionalidades
 
 - Cadastro, listagem e remoção de Clientes.
 - Cadastro, listagem e remoção de Quadras.
@@ -22,7 +22,7 @@ Este projeto foi construído utilizando a seguinte stack:
 
 ---
 
-## 📥 Como Rodar o Projeto na sua Máquina
+## Como Rodar o Projeto na sua Máquina
 
 ### Pré-requisitos
 
