@@ -13,7 +13,9 @@ export async function getAgendamentoById(
   return await agendamentoRepo.findOneBy({ id });
 }
 
-export async function saveAgendamentoData(dados: Partial<Agendamento>) {
+export async function saveAgendamentoData(
+  dados: Partial<Agendamento>,
+): Promise<Agendamento> {
   const novoAgendamento = agendamentoRepo.create(dados);
   return await agendamentoRepo.save(novoAgendamento);
 }

@@ -29,20 +29,22 @@ export async function createAgendamento(
 
   const quadraId = quadra.id;
   const clienteId = cliente.id;
-  const hoje = new Date().toISOString().split("T")[0];
 
-  const novoInicio = new Date(`${hoje}T${startsAt}:00`);
-  const novoFim = new Date(`${hoje}T${endsAt}:00`);
+  const novoInicio = new Date(startsAt);
+  const novoFim = new Date(endsAt);
 
   if (novoFim <= novoInicio) {
     throw new Error("Horário inválido inserido");
   }
   const listaAgendamento = await getAgendamentosList();
   const conflito = listaAgendamento.some((agendamento) => {
+    if (agendamento.quadraId !== quadraId) {
+      return false;
+    }
     const inicioAgendado = new Date(agendamento.startsAt);
     const fimAgendado = new Date(agendamento.endsAt);
 
-    const sobreposicao = novoInicio <= fimAgendado && novoFim >= inicioAgendado;
+    const sobreposicao = novoInicio < fimAgendado && novoFim > inicioAgendado;
     return sobreposicao;
   });
 
@@ -56,26 +58,10 @@ export async function createAgendamento(
     clienteId,
     quadraId,
   });
-  const horaInicio = agendamentoSalvo.startsAt
-    .getHours()
-    .toString()
-    .padStart(2, "0");
-  const minInicio = agendamentoSalvo.startsAt
-    .getMinutes()
-    .toString()
-    .padStart(2, "0");
-  const horaFim = agendamentoSalvo.endsAt
-    .getHours()
-    .toString()
-    .padStart(2, "0");
-  const minFim = agendamentoSalvo.endsAt
-    .getMinutes()
-    .toString()
-    .padStart(2, "0");
 
   return {
     ...agendamentoSalvo,
-    startsAt: `${horaInicio}:${minInicio}`,
-    endsAt: `${horaFim}:${minFim}`,
+    startsAt: agendamentoSalvo.startsAt.toISOString(),
+    endsAt: agendamentoSalvo.endsAt.toISOString(),
   } as unknown as Agendamento;
 }

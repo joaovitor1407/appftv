@@ -9,7 +9,7 @@ import { Cliente } from "./Cliente.js";
 import { Quadra } from "./Quadra.js";
 
 @Entity("agendamentos")
-export class Agendamento {
+export class Agendamento {  
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
